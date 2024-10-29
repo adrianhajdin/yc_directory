@@ -1,33 +1,68 @@
 "use client";
-
-import React, { useState, useActionState } from "react";
+import React, { useState, useActionState, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import MDEditor from "@uiw/react-md-editor";
 import { Button } from "@/components/ui/button";
-import { Send } from "lucide-react";
+import { ImageIcon, Send } from "lucide-react";
 import { formSchema } from "@/lib/validation";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { createPitch } from "@/lib/actions";
+import { createPitch, uploadImage } from "@/lib/actions";
+import { useDropzone } from 'react-dropzone';
+import Image from "next/image";
+
+
+interface PreviewFile extends File {
+  preview: string;
+}
 
 const StartupForm = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pitch, setPitch] = useState("");
   const { toast } = useToast();
   const router = useRouter();
+  const [selectedImage, setSelectedImage] = useState<PreviewFile | null>(null);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+
+
+  // Configure react-dropzone
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    setSelectedImageFile(file)
+    setSelectedImage(
+      Object.assign(file, {
+        preview: URL.createObjectURL(file),
+      }) as PreviewFile
+    );
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'image/jpeg': ['.jpeg', '.jpg'],
+      'image/png': ['.png'],
+    },
+    maxFiles: 1
+  });
 
   const handleFormSubmit = async (prevState: any, formData: FormData) => {
     try {
+      // upload the image to sanity
+      if (!selectedImageFile) return toast({
+        title: "Success",
+        description: "Your startup pitch has been created successfully",
+      });;
+      const imageLink = await uploadImage(selectedImageFile)
+
       const formValues = {
         title: formData.get("title") as string,
         description: formData.get("description") as string,
         category: formData.get("category") as string,
-        link: formData.get("link") as string,
+        link: imageLink as string,
         pitch,
       };
-
       await formSchema.parseAsync(formValues);
 
       const result = await createPitch(prevState, formData, pitch);
@@ -129,16 +164,22 @@ const StartupForm = () => {
 
       <div>
         <label htmlFor="link" className="startup-form_label">
-          Image URL
+          Upload Image
         </label>
-        <Input
-          id="link"
-          name="link"
-          className="startup-form_input"
-          required
-          placeholder="Startup Image URL"
-        />
-
+        {/* implement the react-dropzone */}
+        <div {...getRootProps()} className="startup-form_textarea  border-dashed cursor-pointer">
+          <input {...getInputProps()} />
+          {!isDragActive && !selectedImage ? (
+            <div className="flex flex-col items-center justify-center gap-y-3">
+              <ImageIcon size={70} className="stroke-1" />
+            <p className="text-black text-center">Drag 'n' Drop the image here (.png, .jpeg, .jpg) </p>
+            </div>
+          ) : (
+            <div >
+              {selectedImage && <Image src={selectedImage?.preview} width={1000} height={1000} alt="Preview" className="h-full w-full object-cover" />}
+            </div>
+          )}
+        </div>
         {errors.link && <p className="startup-form_error">{errors.link}</p>}
       </div>
 
