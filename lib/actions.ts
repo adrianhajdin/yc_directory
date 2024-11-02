@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { parseServerActionResponse } from "@/lib/utils";
 import slugify from "slugify";
 import { writeClient } from "@/sanity/lib/write-client";
+import { client } from "@/sanity/lib/client";
 
 export const createPitch = async (
   state: any,
@@ -57,3 +58,24 @@ export const createPitch = async (
     });
   }
 };
+
+
+
+
+export async function uploadImage(file:File) {
+  try {
+    // Check if the file is an image
+    if (!file.type.startsWith('image/')) {
+      throw new Error('File is not an image');
+    }
+
+    // Upload image to Sanity
+    const response = await writeClient.assets.upload('image', file);
+    // Get the image URL
+    const imageUrl = response.url;
+    return imageUrl;
+  } catch (error) {
+    console.error('Image upload failed:', error);
+    throw error;
+  }
+}
