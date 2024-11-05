@@ -34,63 +34,71 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
 
   return (
     <>
-      <section className="pink_container !min-h-[230px]">
-        <p className="tag">{formatDate(post?._createdAt)}</p>
+      {/* Header Section */}
+      <section className="bg-white text-center py-10 px-6 shadow-lg">
+        <p className="text-lg font-medium text-gray-800">{formatDate(post?._createdAt)}</p>
 
-        <h1 className="heading">{post.title}</h1>
-        <p className="sub-heading !max-w-5xl">{post.description}</p>
+        <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 mt-2">
+          {post.title}
+        </h1>
+        <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto mt-4">
+          {post.description}
+        </p>
       </section>
 
-      <section className="section_container">
+      {/* Content Section */}
+      <section className="bg-white py-16 px-6">
         <img
           src={post.image}
           alt="thumbnail"
-          className="w-full h-auto rounded-xl"
+          className="w-full h-auto rounded-lg shadow-md transition-transform transform hover:scale-105"
         />
 
-        <div className="space-y-5 mt-10 max-w-4xl mx-auto">
-          <div className="flex-between gap-5">
+        <div className="mt-12 max-w-4xl mx-auto space-y-6">
+          <div className="flex justify-between items-center gap-6">
             <Link
               href={`/user/${post.author?._id}`}
-              className="flex gap-2 items-center mb-3"
+              className="flex items-center gap-4"
             >
               <Image
                 src={post.author.image}
                 alt="avatar"
                 width={64}
                 height={64}
-                className="rounded-full drop-shadow-lg"
+                className="rounded-full shadow-lg"
               />
-
               <div>
-                <p className="text-20-medium">{post.author.name}</p>
-                <p className="text-16-medium !text-black-300">
-                  @{post.author.username}
+                <p className="text-lg font-semibold text-gray-900">
+                  {post.author.name}
                 </p>
+                <p className="text-sm text-gray-500">@{post.author.username}</p>
               </div>
             </Link>
 
-            <p className="category-tag">{post.category}</p>
+            <span className="px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-medium shadow-sm">
+              {post.category}
+            </span>
           </div>
 
-          <h3 className="text-30-bold">Pitch Details</h3>
+          <h3 className="text-2xl font-bold text-gray-800">Pitch Details</h3>
           {parsedContent ? (
             <article
-              className="prose max-w-4xl font-work-sans break-all"
+              className="prose lg:prose-lg text-gray-700 max-w-none break-words"
               dangerouslySetInnerHTML={{ __html: parsedContent }}
             />
           ) : (
-            <p className="no-result">No details provided</p>
+            <p className="text-gray-500">No details provided</p>
           )}
         </div>
 
-        <hr className="divider" />
+        <hr className="my-16 border-gray-200" />
 
+        {/* Editor Picks */}
         {editorPosts?.length > 0 && (
           <div className="max-w-4xl mx-auto">
-            <p className="text-30-semibold">Editor Picks</p>
+            <p className="text-2xl font-semibold text-blue-600">Editor Picks</p>
 
-            <ul className="mt-7 card_grid-sm">
+            <ul className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {editorPosts.map((post: StartupTypeCard, i: number) => (
                 <StartupCard key={i} post={post} />
               ))}
@@ -98,7 +106,8 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
           </div>
         )}
 
-        <Suspense fallback={<Skeleton className="view_skeleton" />}>
+        {/* Suspense View */}
+        <Suspense fallback={<Skeleton className="mt-16 h-80 bg-gray-100" />}>
           <View id={id} />
         </Suspense>
       </section>
