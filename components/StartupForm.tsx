@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useActionState } from "react";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import MDEditor from "@uiw/react-md-editor";
@@ -29,40 +29,32 @@ const StartupForm = () => {
       };
 
       await formSchema.parseAsync(formValues);
-
       const result = await createPitch(prevState, formData, pitch);
 
-      if (result.status == "SUCCESS") {
+      if (result.status === "SUCCESS") {
         toast({
           title: "Success",
           description: "Your startup pitch has been created successfully",
         });
-
         router.push(`/startup/${result._id}`);
       }
-
       return result;
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const fieldErorrs = error.flatten().fieldErrors;
-
-        setErrors(fieldErorrs as unknown as Record<string, string>);
-
+        const fieldErrors = error.flatten().fieldErrors;
+        setErrors(fieldErrors as unknown as Record<string, string>);
         toast({
           title: "Error",
           description: "Please check your inputs and try again",
           variant: "destructive",
         });
-
         return { ...prevState, error: "Validation failed", status: "ERROR" };
       }
-
       toast({
         title: "Error",
         description: "An unexpected error has occurred",
         variant: "destructive",
       });
-
       return {
         ...prevState,
         error: "An unexpected error has occurred",
@@ -75,104 +67,82 @@ const StartupForm = () => {
     error: "",
     status: "INITIAL",
   });
-
+//updated ui for cleaner modern look :))
   return (
-    <form action={formAction} className="startup-form">
+    <form action={formAction} className="bg-white/20 p-8 backdrop-blur-lg shadow-lg rounded-xl max-w-3xl mx-auto space-y-6">
       <div>
-        <label htmlFor="title" className="startup-form_label">
-          Title
-        </label>
+        <label htmlFor="title" className="block text-sm font-semibold text-gray-700">Title</label>
         <Input
           id="title"
           name="title"
-          className="startup-form_input"
+          className="mt-2 w-full p-3 bg-white/10 border border-transparent focus:border-blue-400 rounded-lg shadow-sm transition-all duration-200 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 placeholder-gray-400"
           required
-          placeholder="Startup Title"
+          placeholder="Enter the title of your startup"
         />
-
-        {errors.title && <p className="startup-form_error">{errors.title}</p>}
+        {errors.title && <p className="text-sm text-red-500 mt-1">{errors.title}</p>}
       </div>
 
       <div>
-        <label htmlFor="description" className="startup-form_label">
-          Description
-        </label>
+        <label htmlFor="description" className="block text-sm font-semibold text-gray-700">Description</label>
         <Textarea
           id="description"
           name="description"
-          className="startup-form_textarea"
+          className="mt-2 w-full p-3 bg-white/10 border border-transparent focus:border-blue-400 rounded-lg shadow-sm transition-all duration-200 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 placeholder-gray-400"
           required
-          placeholder="Startup Description"
+          placeholder="Describe your startup idea"
         />
-
-        {errors.description && (
-          <p className="startup-form_error">{errors.description}</p>
-        )}
+        {errors.description && <p className="text-sm text-red-500 mt-1">{errors.description}</p>}
       </div>
 
       <div>
-        <label htmlFor="category" className="startup-form_label">
-          Category
-        </label>
+        <label htmlFor="category" className="block text-sm font-semibold text-gray-700">Category</label>
         <Input
           id="category"
           name="category"
-          className="startup-form_input"
+          className="mt-2 w-full p-3 bg-white/10 border border-transparent focus:border-blue-400 rounded-lg shadow-sm transition-all duration-200 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 placeholder-gray-400"
           required
-          placeholder="Startup Category (Tech, Health, Education...)"
+          placeholder="Category (e.g., Tech, Health, Education)"
         />
-
-        {errors.category && (
-          <p className="startup-form_error">{errors.category}</p>
-        )}
+        {errors.category && <p className="text-sm text-red-500 mt-1">{errors.category}</p>}
       </div>
 
       <div>
-        <label htmlFor="link" className="startup-form_label">
-          Image URL
-        </label>
+        <label htmlFor="link" className="block text-sm font-semibold text-gray-700">Image URL</label>
         <Input
           id="link"
           name="link"
-          className="startup-form_input"
+          className="mt-2 w-full p-3 bg-white/10 border border-transparent focus:border-blue-400 rounded-lg shadow-sm transition-all duration-200 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 placeholder-gray-400"
           required
-          placeholder="Startup Image URL"
+          placeholder="Provide a link to an image for your startup"
         />
-
-        {errors.link && <p className="startup-form_error">{errors.link}</p>}
+        {errors.link && <p className="text-sm text-red-500 mt-1">{errors.link}</p>}
       </div>
 
-      <div data-color-mode="light">
-        <label htmlFor="pitch" className="startup-form_label">
-          Pitch
-        </label>
-
+      <div>
+        <label htmlFor="pitch" className="block text-sm font-semibold text-gray-700">Pitch</label>
         <MDEditor
           value={pitch}
           onChange={(value) => setPitch(value as string)}
           id="pitch"
           preview="edit"
-          height={300}
-          style={{ borderRadius: 20, overflow: "hidden" }}
+          height={200}
+          className="mt-2 bg-white/10 p-3 rounded-lg shadow-sm border border-transparent focus:border-blue-400 transition-all duration-200"
           textareaProps={{
-            placeholder:
-              "Briefly describe your idea and what problem it solves",
-          }}
-          previewOptions={{
-            disallowedElements: ["style"],
+            placeholder: "Briefly describe your idea and what problem it solves",
           }}
         />
-
-        {errors.pitch && <p className="startup-form_error">{errors.pitch}</p>}
+        {errors.pitch && <p className="text-sm text-red-500 mt-1">{errors.pitch}</p>}
       </div>
 
       <Button
         type="submit"
-        className="startup-form_btn text-white"
+        className={`w-full flex items-center justify-center gap-2 mt-6 py-3 px-6 text-white bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500 rounded-lg shadow-lg hover:scale-105 transform transition-transform duration-200 ${
+          isPending && "cursor-not-allowed opacity-70"
+        }`}
         disabled={isPending}
       >
         {isPending ? "Submitting..." : "Submit Your Pitch"}
-        <Send className="size-6 ml-2" />
+        <Send className="w-5 h-5" />
       </Button>
     </form>
   );
