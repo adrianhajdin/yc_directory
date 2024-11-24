@@ -203,8 +203,6 @@ export default config;
 <summary><code>globals.css</code></summary>
 
 ```css
-@import url("https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
